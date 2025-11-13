@@ -1,0 +1,159 @@
+import random
+
+def read_graph_from_input():
+    """
+    Считывает граф с клавиатуры.
+    Возвращает:
+      - n: число вершин
+      - graph: словарь смежности {вершина: множество смежных вершин}
+    """
+    print("Введите число вершин:")
+    n = int(input().strip())
+    
+    graph = {i: set() for i in range(n)}
+    
+    print("Введите рёбра (пары вершин через пробел, по одному на строке).")
+    print("Для завершения ввода введите пустую строку:")
+    
+    while True:
+        line = input().strip()
+        if not line:
+            break
+        try:
+            u, v = map(int, line.split())
+            if u < 0 or u >= n or v < 0 or v >= n:
+                print(f"Ошибка: вершины должны быть от 0 до {n-1}. Пропускаем.")
+                continue
+            if u == v:
+                print("Ошибка: петля (u == v) не допускается. Пропускаем.")
+                continue
+            graph[u].add(v)
+            graph[v].add(u)
+        except ValueError:
+            print("Ошибка ввода. Введите два целых числа через пробел или пустую строку для завершения.")
+    
+    return n, graph
+
+def is_independent_set(S, graph):
+    """Проверяет, что множество S — независимое в графе graph."""
+    for u in S:
+        for v in S:
+            if u != v and v in graph[u]:
+                return False
+    return True
+
+def random_independent_set(graph, n):
+    """Генерирует случайное независимое множество."""
+    S = set()
+    vertices = list(range(n))
+    random.shuffle(vertices)
+    
+    for v in vertices:
+        # Добавляем вершину v, если она не смежна ни с одной из S
+        if all(neigh not in S for neigh in graph[v]):
+            S.add(v)
+    
+    assert is_independent_set(S, graph), "Ошибка: сгенерировано не независимое множество!"
+    return S
+
+def local_search_independent_set(graph, n):
+    """
+    Локальный поиск для задачи о независимом множестве.
+    Начинает со случайного независимого множества,
+    пытается добавлять вершины.
+    """
+    # 1. Начальное решение — случайное независимое множество
+    S = random_independent_set(graph, n)
+    print(f"\nНачальное независимое множество: {sorted(S)} (размер: {len(S)})")
+    
+    improved = True
+    iteration = 0
+    
+    while improved:
+        improved = False
+        iteration += 1
+        
+        # Пробуем добавить каждую вершину, не входящую в S
+        for v in range(n):
+            if v not in S:
+                # Проверяем, что v не смежна ни с одной вершиной из S
+                if all(neigh not in S for neigh in graph[v]):
+                    S.add(v)
+                    improved = True
+                    print(f"Итерация {iteration}: добавили вершину {v}, текущее множество: {sorted(S)}")
+                    break  # Добавляем одну вершину за итерацию
+        
+    return S
+
+def main():
+    print("=== Локальный поиск для задачи о независимом множестве ===\n")
+    
+    # Ввод графа
+    n, graph = read_graph_from_input()
+    
+    # Выводим граф для проверки
+    print(f"\nВведённый граф (список смежности):")
+    for v in range(n):
+        print(f"{v}: {sorted(graph[v])}")
+    print()
+    
+    # Запускаем локальный поиск
+    result_set = local_search_independent_set(graph, n)
+    
+    # Вывод результата
+    print(f"\n=== Результат ===")
+    print(f"Найденное независимое множество: {sorted(result_set)}")
+    print(f"Размер независимого множества: {len(result_set)}")
+
+if __name__ == "__main__":
+    main()
+
+Рзультат:
+Введите число вершин:
+12
+Введите рёбра (пары вершин через пробел, по одному на строке).
+Для завершения ввода введите пустую строку:
+
+
+Введённый граф (список смежности):
+0: []
+1: []
+2: []
+3: []
+4: []
+5: []
+6: []
+7: []
+8: []
+9: []
+10: []
+11: []
+
+
+Начальное независимое множество: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] (размер: 12)
+
+
+
+2) public static int firstFit(int[] weights, int W) {
+    List<Integer> bins = new ArrayList<>(); // текущие загрузки контейнеров
+    for (int w : weights) {
+        boolean packed = false;
+        for (int i = 0; i < bins.size(); i++) {
+            if (bins.get(i) + w <= W) {
+                bins.set(i, bins.get(i) + w);
+                packed = true;
+                break;
+            }
+        }
+        if (!packed) {
+            bins.add(w); // добавляем новый контейнер с весом w
+        }
+    }
+    return bins.size();
+}
+
+
+
+
+
+
